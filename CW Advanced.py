@@ -194,6 +194,7 @@ class AboutUs(Tk):
     def discordLink(self):
         webbrowser.open("https://discord.com/invite/pNpyYAhz5U")
 
+    # create a shortcut
     def createShortcut(self):
         if not os.path.isfile(shortcutName):
             try:
@@ -207,6 +208,7 @@ class AboutUs(Tk):
             except:
                 print("Could not create shortcut")
 
+    # copies the shortcut and paste it to the Desktop
     def shortcutToDesktop(self):
         if not os.path.isfile(shortcutName):
             self.createShortcut()
@@ -218,6 +220,3 @@ class AboutUs(Tk):
 if __name__ == "__main__":
     App().mainloop()
     AboutUs().mainloop()
-
-
-# os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop')
