@@ -1,4 +1,4 @@
-from pygetwindow import getAllWindows
+from pygetwindow import getAllWindows, getWindowsWithTitle
 from tkinter import *
 from keyboard import add_hotkey
 import webbrowser
@@ -103,20 +103,18 @@ class App(Tk):
     # centeres it self
     def centerSelf(self):
         # get all windows
-        self.windows = getAllWindows()
+        windowSelf = getWindowsWithTitle("CW Advanced")[0]
 
-        for i in self.windows:
-            if i.title == "CW Advanced":
-                # get the half dimensions of the window in px
-                windowHalfWidht = i.width / 2
-                windowHalfHeight = i.height / 2
+        # get the half dimensions of the window in px
+        windowHalfWidht = windowSelf.width / 2
+        windowHalfHeight = windowSelf.height / 2
 
-                # calculates the center of the screen where the window should go
-                endWidth = self.screenHalfWidth - windowHalfWidht
-                endHeight = self.screenHalfHeigth - windowHalfHeight
+        # calculates the center of the screen where the window should go
+        endWidth = self.screenHalfWidth - windowHalfWidht
+        endHeight = self.screenHalfHeigth - windowHalfHeight
 
-                # moves the window to the calculated position
-                i.moveTo(int(endWidth), int(endHeight))
+        # moves the window to the calculated position
+        windowSelf.moveTo(int(endWidth), int(endHeight))
 
 
 # second window
