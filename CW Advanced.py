@@ -4,7 +4,6 @@ from keyboard import add_hotkey
 import webbrowser
 from shutil import copy2
 import win32com.client
-import pythoncom
 import os
 import time
 
