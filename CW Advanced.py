@@ -162,7 +162,7 @@ class AboutUs(Tk):
             checkBox.select()
 
         # after 10min enters function checkTime
-        self.after(60000, self.checkTime)
+        self.after(60000, self.onClose)
 
         self.protocol("WM_DELETE_WINDOW", self.onClose)
 
@@ -188,10 +188,6 @@ class AboutUs(Tk):
                 self.destroy()
         else:
             self.destroy()
-
-    # close window after 10min
-    def checkTime(self):
-            self.onClose()
 
     # open link
     def discordLink(self):
