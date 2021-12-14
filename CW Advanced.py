@@ -120,8 +120,6 @@ class App(Tk):
 # second window
 class AboutUs(Tk):
     autostart = ""
-    startTime = 0
-    actualTime = 0
 
     def __init__(self):
         super().__init__()
@@ -163,8 +161,8 @@ class AboutUs(Tk):
         if os.path.isfile(startupPath + "\\" + shortcutName):
             checkBox.select()
 
-        # after 10sec enters function checkTime
-        self.after(10000, self.checkTime)
+        # after 10min enters function checkTime
+        self.after(60000, self.checkTime)
 
         self.protocol("WM_DELETE_WINDOW", self.onClose)
 
@@ -193,10 +191,7 @@ class AboutUs(Tk):
 
     # close window after 10min
     def checkTime(self):
-        self.actualTime = time.time() - self.startTime
-        if self.actualTime >= 600:
-            self.destroy()
-        self.after(10000, self.checkTime)
+            self.onClose()
 
     # open link
     def discordLink(self):
