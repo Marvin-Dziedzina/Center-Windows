@@ -1,17 +1,20 @@
 from pygetwindow import getAllWindows, getWindowsWithTitle
-from tkinter import *
+from tkinter import Tk
+from tkinter import Label, Button, BooleanVar, Checkbutton
 from keyboard import add_hotkey
-import webbrowser
+from webbrowser import open as wbOpen
 from shutil import copy2
-import win32com.client
-import os
-import time
+from win32com.client import Dispatch as win32comDiscpatch
+from os import getlogin, environ, remove
+from os.path import dirname, realpath, isfile, join
+from time import time
 
-programPath = os.path.dirname(os.path.realpath(__file__))
-picturePath = programPath + "\\icon\\"
-shortcutName = "CW startup.lnk"
-startupPath = "C:\\Users\\" + os.getlogin() + \
-    "\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup"
+VERSION = 1.1
+
+programPath = dirname(realpath(__file__))
+picturePath = f"{programPath}\\icon\\"
+shortcutName = "CW Advanced.lnk"
+startupPath = f"C:\\Users\\{getlogin()}\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup"
 
 
 # main window
@@ -54,6 +57,10 @@ class App(Tk):
         t = Label(self, text="All rights reserved")
         t.config(font=("Arial", 7), background="#242529", foreground="#a6abb3")
         t.place(relx=0.5, rely=1, anchor="s")
+
+        t = Label(self, text=f"Version {VERSION}")
+        t.config(font=("Arial", 7), background="#242529", foreground="#a6abb3")
+        t.place(relx=0.5, rely=0.965, anchor="s")
 
         t = Label(self, text="CW Advanced")
         t.config(font=("Arial", 16), background="#242529", foreground="#a6abb3")
@@ -119,12 +126,12 @@ class App(Tk):
 
 # second window
 class AboutUs(Tk):
-    autostart = ""
+    autostart = False
 
     def __init__(self):
         super().__init__()
 
-        self.startTime = time.time()
+        self.startTime = time()
         self.autostart = BooleanVar()
 
         # window is defined
@@ -135,7 +142,7 @@ class AboutUs(Tk):
         self.config(background="#242529")
 
         # elements in the second window are defined under here
-        t = Label(self, text="Special thanks to Moritz\naka Brat__Wurst")
+        t = Label(self, text="Special thanks to BratWurst")
         t.config(font=("Arial", 16), background="#242529", foreground="#a6abb3")
         t.place(relx=0.5, rely=0.03, anchor="n")
 
@@ -158,28 +165,28 @@ class AboutUs(Tk):
         self.createShortcut()
 
         # check starup folder if shortcut is in then select checkbox
-        if os.path.isfile(startupPath + "\\" + shortcutName):
+        if isfile(startupPath + "\\" + shortcutName):
             checkBox.select()
 
         # after 10min enters function checkTime
         self.after(600000, self.onClose)
-
+        # after 10min close window
         self.protocol("WM_DELETE_WINDOW", self.onClose)
 
-    # Check waht the user want and where the program is
+    # Check wh|at the user want and where the program is
     def onClose(self):
-        if os.path.isfile(startupPath + "\\" + shortcutName) and self.autostart.get():
+        if isfile(startupPath + "\\" + shortcutName) and self.autostart.get():
             self.destroy()
-        elif not os.path.isfile(startupPath + "\\" + shortcutName) and not self.autostart.get():
+        elif not isfile(startupPath + "\\" + shortcutName) and not self.autostart.get():
             self.destroy()
-        elif os.path.isfile(startupPath + "\\" + shortcutName) and not self.autostart.get():
+        elif isfile(startupPath + "\\" + shortcutName) and not self.autostart.get():
             try:
-                os.remove(startupPath + "\\" + shortcutName)
+                remove(startupPath + "\\" + shortcutName)
                 self.destroy()
             except:
                 print("Error can not remove file")
                 self.destroy()
-        elif not os.path.isfile(startupPath + "\\" + shortcutName) and self.autostart.get():
+        elif not isfile(startupPath + "\\" + shortcutName) and self.autostart.get():
             try:
                 copy2(shortcutName, startupPath)
                 self.destroy()
@@ -191,17 +198,17 @@ class AboutUs(Tk):
 
     # open link
     def discordLink(self):
-        webbrowser.open("https://discord.com/invite/pNpyYAhz5U")
+        wbOpen("https://discord.gg/KbWUkUaSPv")
 
     # create a shortcut
     def createShortcut(self):
-        if not os.path.isfile(shortcutName):
+        if not isfile(shortcutName):
             try:
-                shell = win32com.client.Dispatch("WScript.Shell")
+                shell = win32comDiscpatch("WScript.Shell")
                 shortcut = shell.CreateShortCut(
-                    programPath + "\\" + shortcutName)
-                shortcut.Targetpath = programPath + "\\" + "CW Advanced.exe"
-                shortcut.IconLocation = programPath + "\\icon\\CenterWindow.ico"
+                    f"{programPath}\\{shortcutName}")
+                shortcut.Targetpath = f"{programPath}\\CW Advanced.exe"
+                shortcut.IconLocation = f"{programPath}\\icon\\CenterWindow.ico"
                 shortcut.WindowStyle = 1
                 shortcut.save()
             except:
@@ -209,10 +216,10 @@ class AboutUs(Tk):
 
     # copies the shortcut and paste it to the Desktop
     def shortcutToDesktop(self):
-        if not os.path.isfile(shortcutName):
+        if not isfile(shortcutName):
             self.createShortcut()
-        copy2(shortcutName, os.path.join(
-            os.path.join(os.environ["USERPROFILE"]), "Desktop"))
+
+        copy2(shortcutName, join(join(environ["USERPROFILE"]), "Desktop"))
 
 
 # start mainloop

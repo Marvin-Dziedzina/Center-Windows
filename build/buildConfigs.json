@@ -7,7 +7,7 @@
   },
   {
    "optionDest": "filenames",
-   "value": "C:/Users/marvi/Documents/Python Scripts/CenterWindow/CW Advanced.py"
+   "value": "C:/Users/marvi/Documents/Code/Center-Windows/CW Advanced.py"
   },
   {
    "optionDest": "onefile",
@@ -19,7 +19,7 @@
   },
   {
    "optionDest": "icon_file",
-   "value": "C:/Users/marvi/Documents/Python Scripts/CenterWindow/icon/CenterWindow.ico"
+   "value": "C:/Users/marvi/Documents/Code/Center-Windows/icon/CenterWindow.ico"
   },
   {
    "optionDest": "name",
@@ -70,8 +70,12 @@
    "value": false
   },
   {
+   "optionDest": "argv_emulation",
+   "value": false
+  },
+  {
    "optionDest": "datas",
-   "value": "C:/Users/marvi/Documents/Python Scripts/CenterWindow/icon;icon/"
+   "value": "C:/Users/marvi/Documents/Code/Center-Windows/icon;icon/"
   }
  ],
  "nonPyinstallerOptions": {
