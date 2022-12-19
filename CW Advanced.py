@@ -9,7 +9,13 @@ from os import getlogin, environ, remove
 from os.path import dirname, realpath, isfile, join
 from time import time
 
-VERSION = 1.1
+# Version with in this format
+# X.Y.Z
+# X = Major Version
+# Y = Minor Version
+# Z = Patch
+#
+VERSION = "1.1.1"
 
 programPath = dirname(realpath(__file__))
 picturePath = f"{programPath}\\icon\\"
