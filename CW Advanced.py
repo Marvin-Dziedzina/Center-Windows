@@ -1,12 +1,11 @@
 from pygetwindow import getAllWindows, getWindowsWithTitle
-from tkinter import Tk
-from tkinter import Label, Button, BooleanVar, Checkbutton
+from tkinter import Label, Button, Tk, BooleanVar, PhotoImage, Checkbutton
 from keyboard import add_hotkey
 from webbrowser import open as wbOpen
 from shutil import copy2
 from win32com.client import Dispatch as win32comDiscpatch
 from os import getlogin, environ, remove
-from os.path import dirname, realpath, isfile, join
+from os.path import dirname, realpath, isfile, join, getsize
 from time import time
 
 # Version with in this format
@@ -15,12 +14,13 @@ from time import time
 # Y = Minor Version
 # Z = Patch
 #
-VERSION = "1.1.1"
+VERSION = "1.2.0"
 
 programPath = dirname(realpath(__file__))
 picturePath = f"{programPath}\\icon\\"
 shortcutName = "CW Advanced.lnk"
 startupPath = f"C:\\Users\\{getlogin()}\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup"
+logFilePath = "log.txt"
 
 
 # main window
@@ -35,6 +35,8 @@ class App(Tk):
 
     def __init__(self):
         super().__init__()
+
+        self.log("__init__", "In init func")
 
         # get screen resolution
         self.screenWidth = self.winfo_screenwidth()
@@ -52,7 +54,7 @@ class App(Tk):
         self.config(background="#242529")
 
         # elements in the main window are defined under here
-        t = Label(self, text="by Marvin")
+        t = Label(self, text="by Mixaffected")
         t.config(font=("Arial", 7), background="#242529", foreground="#a6abb3")
         t.place(relx=0.0, rely=1.0, anchor="sw")
 
@@ -77,6 +79,13 @@ class App(Tk):
         t.config(font=("Arial", 12), background="#242529", foreground="#a6abb3")
         t.place(relx=0.5, rely=0.1, anchor="n")
 
+        self.photo = PhotoImage(file=f"{picturePath}settings.png")
+        t = Button(self, text="Settings",
+                   command=self.openSettingsWindow, image=self.photo)
+        t.config(font=("Arial", 12), background="#373a40",
+                 activebackground="#292c30", foreground="#a6abb3")
+        t.place(relx=0.98, rely=0.02, anchor="ne")
+
         t = Button(self, text="Center", height=3,
                    width=15, command=self.centerWindows)
         t.config(font=("Arial", 12), background="#373a40",
@@ -92,6 +101,8 @@ class App(Tk):
         # hotkey for fast centering
         add_hotkey("ctrl+alt+<", self.centerWindows)
 
+        self.createShortcut()
+
     # function to center all windows except all maximized or minimized windows
     def centerWindows(self):
         # get all windows
@@ -106,9 +117,22 @@ class App(Tk):
                         windowHalfWidht = i.width / 2
                         windowHalfHeight = i.height / 2
 
+                        # get screen resolution
+                        self.screenWidth = self.winfo_screenwidth()
+                        self.screenHeigth = self.winfo_screenheight()
+
+                        # get half width of screen dimensions in px
+                        self.screenHalfWidth = self.screenWidth / 2
+                        self.screenHalfHeigth = self.screenHeigth / 2
+
                         # calculates the center of the screen where the window should go
                         endWidth = self.screenHalfWidth - windowHalfWidht
                         endHeight = self.screenHalfHeigth - windowHalfHeight
+
+                        self.log("screenWidth", self.screenWidth)
+                        self.log("screenHeigth", self.screenHeigth)
+                        self.log("endWidth", endWidth)
+                        self.log("endHeight", endHeight)
 
                         # moves the window to the calculated position
                         i.moveTo(int(endWidth), int(endHeight))
@@ -123,19 +147,70 @@ class App(Tk):
         windowHalfHeight = windowSelf.height / 2
 
         # calculates the center of the screen where the window should go
-        endWidth = self.screenHalfWidth - windowHalfWidht
-        endHeight = self.screenHalfHeigth - windowHalfHeight
+        endWidth = self.screenHalfWidth / 3 - windowHalfWidht
+        endHeight = self.screenHalfHeigth / 1.8 - windowHalfHeight
 
         # moves the window to the calculated position
         windowSelf.moveTo(int(endWidth), int(endHeight))
 
+    # create a shortcut
+    def createShortcut(self):
+        if not isfile(shortcutName):
+            try:
+                shell = win32comDiscpatch("WScript.Shell")
+                shortcut = shell.CreateShortCut(
+                    f"{programPath}\\{shortcutName}")
+                shortcut.Targetpath = f"{programPath}\\CW Advanced.exe"
+                shortcut.IconLocation = f"{programPath}\\icon\\CenterWindow.ico"
+                shortcut.WindowStyle = 1
+                shortcut.save()
+                self.log("CreatedShortcut", "Shortcut created")
+            except:
+                print("Could not create shortcut")
 
-# second window
-class AboutUs(Tk):
+    def openSettingsWindow(self):
+        self.log("Open settings", "Open Settings")
+        Settings().mainloop()
+
+    def log(self, title="", message=""):
+        if isfile("log.txt"):
+            fileSize = getsize(logFilePath)
+            print(fileSize)
+            message = f"{title}: {message} |{fileSize}"
+
+            if fileSize / 1024 >= 5000:
+                contents = []
+
+                with open(logFilePath, "r") as log:
+                    contents = log.readlines()
+
+                count = 0
+                for idx, e in enumerate(contents):
+                    if count <= 30:
+                        count += 1
+                        continue
+
+                    contents.pop(idx)
+
+                with open(logFilePath, "w") as log:
+                    log.writelines(contents)
+
+        try:
+            with open(logFilePath, "x") as log:
+                log.write(f"{message}\n")
+        except:
+            with open(logFilePath, "a") as log:
+                log.write(f"{message}\n")
+
+
+# options window
+class Settings(Tk):
     autostart = False
 
     def __init__(self):
         super().__init__()
+
+        self.log("Setting init", "In settings init")
 
         self.startTime = time()
         self.autostart = BooleanVar()
@@ -168,31 +243,29 @@ class AboutUs(Tk):
                                background="#242529", foreground="#a6abb3")
         checkBox.place(relx=0.5, rely=1.0, anchor="s")
 
-        self.createShortcut()
-
         # check starup folder if shortcut is in then select checkbox
-        if isfile(startupPath + "\\" + shortcutName):
+        if isfile(f"{startupPath}\\{shortcutName}"):
             checkBox.select()
 
         # after 10min enters function checkTime
-        self.after(600000, self.onClose)
+        self.after(120000, self.onClose)
         # after 10min close window
         self.protocol("WM_DELETE_WINDOW", self.onClose)
 
     # Check wh|at the user want and where the program is
     def onClose(self):
-        if isfile(startupPath + "\\" + shortcutName) and self.autostart.get():
+        if isfile("f{startupPath}\\{shortcutName}") and self.autostart.get():
             self.destroy()
-        elif not isfile(startupPath + "\\" + shortcutName) and not self.autostart.get():
+        elif not isfile(f"{startupPath}\\{shortcutName}") and not self.autostart.get():
             self.destroy()
-        elif isfile(startupPath + "\\" + shortcutName) and not self.autostart.get():
+        elif isfile(f"{startupPath}\\{shortcutName}") and not self.autostart.get():
             try:
-                remove(startupPath + "\\" + shortcutName)
+                remove(f"{startupPath}\\{shortcutName}")
                 self.destroy()
             except:
                 print("Error can not remove file")
                 self.destroy()
-        elif not isfile(startupPath + "\\" + shortcutName) and self.autostart.get():
+        elif not isfile(f"{startupPath}\\{shortcutName}") and self.autostart.get():
             try:
                 copy2(shortcutName, startupPath)
                 self.destroy()
@@ -206,6 +279,13 @@ class AboutUs(Tk):
     def discordLink(self):
         wbOpen("https://discord.gg/KbWUkUaSPv")
 
+    # copies the shortcut and paste it to the Desktop
+    def shortcutToDesktop(self):
+        if not isfile(shortcutName):
+            self.createShortcut()
+
+        copy2(shortcutName, join(join(environ["USERPROFILE"]), "Desktop"))
+
     # create a shortcut
     def createShortcut(self):
         if not isfile(shortcutName):
@@ -217,18 +297,41 @@ class AboutUs(Tk):
                 shortcut.IconLocation = f"{programPath}\\icon\\CenterWindow.ico"
                 shortcut.WindowStyle = 1
                 shortcut.save()
+
             except:
                 print("Could not create shortcut")
 
-    # copies the shortcut and paste it to the Desktop
-    def shortcutToDesktop(self):
-        if not isfile(shortcutName):
-            self.createShortcut()
+    def log(self, title="", message=""):
+        if isfile("log.txt"):
+            fileSize = getsize(logFilePath)
+            print(fileSize)
+            message = f"{title}: {message} |{fileSize}"
 
-        copy2(shortcutName, join(join(environ["USERPROFILE"]), "Desktop"))
+            if fileSize / 1024 >= 5000:
+                contents = []
+
+                with open(logFilePath, "r") as log:
+                    contents = log.readlines()
+
+                count = 0
+                for idx, e in enumerate(contents):
+                    if count <= 30:
+                        count += 1
+                        continue
+
+                    contents.pop(idx)
+
+                with open(logFilePath, "w") as log:
+                    log.writelines(contents)
+
+        try:
+            with open(logFilePath, "x") as log:
+                log.write(f"{message}\n")
+        except:
+            with open(logFilePath, "a") as log:
+                log.write(f"{message}\n")
 
 
 # start mainloop
 if __name__ == "__main__":
     App().mainloop()
-    AboutUs().mainloop()
