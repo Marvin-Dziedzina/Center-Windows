@@ -7,7 +7,7 @@ from shutil import copy2
 from win32com.client import Dispatch as win32comDiscpatch
 from os import getlogin, environ, remove
 from os.path import dirname, realpath, isfile, join
-from time import time
+from time import time, sleep
 
 # Version with in this format
 # X.Y.Z
@@ -15,7 +15,7 @@ from time import time
 # Y = Minor Version
 # Z = Patch
 #
-VERSION = "1.1.1"
+VERSION = "1.2.1"
 
 programPath = dirname(realpath(__file__))
 picturePath = f"{programPath}\\icon\\"
@@ -91,6 +91,10 @@ class App(Tk):
 
         # hotkey for fast centering
         add_hotkey("ctrl+alt+<", self.centerWindows)
+
+        sleep(10)
+
+        self.centerWindows()
 
     # function to center all windows except all maximized or minimized windows
     def centerWindows(self):
